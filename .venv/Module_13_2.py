@@ -6,12 +6,6 @@ from importlib.resources import files
 from pprint import pprint
 import Config
 
-# name = 'bot_token.txt'
-# file = open(name, 'r')
-# api = file.read()
-# file.close()
-#
-# bot = Bot(token=api)
 bot = Bot(token=Config.BOT_TOKEN)
 dp  = Dispatcher(bot, storage= MemoryStorage())
 

@@ -1,26 +1,61 @@
 import aiogram
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher import FSMContext
 import asyncio
+import Config
 
-api = "8110042185:AAERDVOgOu7wPQieCCHMX-oCgONG7T438Oc"
-bot = Bot(token=api)
+bot = Bot(token=Config.BOT_TOKEN)
 dp  = Dispatcher(bot, storage= MemoryStorage())
 
-@dp.message_handler(text = ['Urban', 'ff'])
-async def urban_message(message):
-    print('Urban message')
-    await message.answer('Urban message')
+class UserState(StatesGroup):
+    address = State()
 
-@dp.message_handler(commands = ['start'])
-async def start_message(message):
-    print('Start message')
-    await message.answer('Hello! Nice to see you!')
+HELP = """
+/help - вывести справку по программе.
+/start - начать процесс бронирования.
+/id - запрос персонального идентификационного номера.
+/add - добавить новое бронирование.
+/show - показать все бронирования.
+/exit - выход.
+"""
+
+@dp.message_handler(commands=["help"])
+async def help(message):
+    await message.answer(f'{HELP}')
+
+@dp.message_handler(commands=["start"])
+async def send_welcome(message: types.Message):
+    print(f"Пользователь {message.from_user.id} начал процесс бронирования")
+    await message.reply('Привет! Я - специальный заказывающий бот. Введи /add для начала бронирования')
+
+
+
+@dp.message_handler(commands=["id"])
+async def start_handler(message: types.Message):
+    print(f"Пользователь {message.from_user.id} запросил номер ID")
+    await message.answer(f"Твой ID: {message.from_user.id}")
+
+@dp.message_handler(commands=["add"])
+async def send_welcome(message: types.Message):
+    print('Новое бронирование! Делаем запрос адреса')
+    await message.reply('Отлично! Перед началом бронирования мне нужен адрес доставки. Введи адрес, пожалуйста!')
+    await UserState.address.set()
+
+@dp.message_handler(state=UserState.address)
+async def fsm_handler(message, state):
+    await state.update_data(first = message.text)
+    data = await state.get_data()
+    print(f'Адрес доставки - {data["first"]}')
+    await message.answer(f'Адрес доставки будет: {data["first"]}')
+    await state.finish()
 
 @dp.message_handler()
-async def all_message(message):
-    print("Have a new message")
-    await message.answer(message.text.upper())
+async def all_message(message: types.Message):
+    print("Новый пользователь")
+    await message.reply("Выберете /start или /help для начала")
+
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)

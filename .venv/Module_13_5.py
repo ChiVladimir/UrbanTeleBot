@@ -34,6 +34,7 @@ async def set_start(message):
 
 @dp.message_handler(text='Рассчитать')
 async def set_age(message):
+#    print(f"Пользователь {message.from_user.id} начал ввод данных")
     await message.answer('Введите свой возраст, пожалуйста! ')
     await UserState.age.set()
 
@@ -53,6 +54,7 @@ async def set_weight(message, state):
 async def send_calories(message, state):
     await state.update_data(weight=message.text)
     data = await state.get_data()
+#    print(f'Возраст - {data["age"]}, Рост - {data["growth"]}, Вес - {data["weight"]}')
     if not data["age"].isdigit() or not data["weight"].isdigit() or not data["growth"].isdigit():
         await message.answer(f'Введенные данные некорректны! Должны быть только числа. '
                              f'Выберете /start для повтора или нажмите [Рассчитать]')
@@ -69,7 +71,8 @@ async def set_info(message):
 
 @dp.message_handler()
 async def all_message(message: types.Message):
-    await message.reply("Добрый день! Выберете /start для начала")
+#    print("Новый пользователь")
+    await message.answer("Добрый день! Выберете /start для начала")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#Домашнее задание по теме "Машина состояний".
+#Домашнее задание по теме "Клавиатура кнопок".
 
 import aiogram
 from aiogram import Bot, Dispatcher, types, executor
@@ -34,8 +34,8 @@ async def set_start(message):
 
 @dp.message_handler(text='Рассчитать')
 async def set_age(message):
-    print(f"Пользователь {message.from_user.id} начал ввод данных")
-    await message.reply('Введите свой возраст, пожалуйста! ')
+#    print(f"Пользователь {message.from_user.id} начал ввод данных")
+    await message.answer('Введите свой возраст, пожалуйста! ')
     await UserState.age.set()
 
 @dp.message_handler(state=UserState.age)
@@ -54,14 +54,14 @@ async def set_weight(message, state):
 async def send_calories(message, state):
     await state.update_data(weight=message.text)
     data = await state.get_data()
-    print(f'Возраст - {data["age"]}, Рост - {data["growth"]}, Вес - {data["weight"]}')
+#    print(f'Возраст - {data["age"]}, Рост - {data["growth"]}, Вес - {data["weight"]}')
     result = int(10 * int(data['weight']) + 6.25 * int(data['growth']) - 5 * int(data['age']) + 5)
     await message.answer(f"Ваша норма в сутки {result} ккал")
     await state.finish()
 
 @dp.message_handler(text='Информация')
 async def set_info(message):
-    await message.reply(HELP)
+    await message.answer(HELP)
 
 @dp.message_handler()
 async def all_message(message: types.Message):

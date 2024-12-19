@@ -30,7 +30,7 @@ HELP = """
 
 @dp.message_handler(commands=["start"])
 async def set_start(message):
-    await message.reply('Я - специальный бот для нахождения нормы суточного потребления калорий для человека.', reply_markup=greet_kb)
+    await message.answer('Я - специальный бот для нахождения нормы суточного потребления калорий для человека.', reply_markup=greet_kb)
 
 @dp.message_handler(text='Рассчитать')
 async def set_age(message):

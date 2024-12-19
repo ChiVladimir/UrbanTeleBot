@@ -65,7 +65,7 @@ async def set_info(message):
 
 @dp.message_handler()
 async def all_message(message: types.Message):
-    print("Новый пользователь")
+#    print("Новый пользователь")
     await message.reply("Добрый день! Выберете /start для начала")
 
 

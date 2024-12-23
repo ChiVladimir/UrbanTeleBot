@@ -1,8 +1,9 @@
 import aiogram
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.dispatcher import FSMContext
 import asyncio
 import Config
@@ -21,6 +22,19 @@ kb.add(button_inf)
 kb.add(button_start)
 #kb.row kb.insert
 
+kb_in = InlineKeyboardMarkup()
+button_in = InlineKeyboardButton(text='Информация', callback_data='Info')
+
+kb_in.add(button_in)
+
+start_menu = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text='Info', callback_data='Info')],
+        [KeyboardButton(text ='Shop'),
+         KeyboardButton(text ='Donate')
+            ]
+    ], resize_keyboard=True
+)
 
 HELP = """
 /help - вывести справку по программе.
@@ -38,11 +52,17 @@ async def help(message):
 @dp.message_handler(commands=["start"])
 async def send_welcome(message):
     print(f"Пользователь {message.from_user.id} начал процесс бронирования")
-    await message.answer('Привет! Я - специальный заказывающий бот.', reply_markup = kb)
+#    await message.answer('Привет! Я - специальный заказывающий бот.', reply_markup = kb_in)
+    await message.answer('Привет! Я - специальный заказывающий бот.', reply_markup = start_menu)
 
-@dp.message_handler(text='Информация')
-async def inform(message):
-    await message.answer (HELP)
+@dp.callback_query_handler(text = 'Info')
+async def infor(call):
+    await call.message.answer(f'{HELP}')
+    await call.answer()
+
+#@dp.message_handler(text='Информация')
+#async def inform(message):
+#    await message.answer (HELP)
 
 @dp.message_handler(text='Начало')
 async def inform(message):

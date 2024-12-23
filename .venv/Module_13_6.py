@@ -1,4 +1,4 @@
-#Домашнее задание по теме "Клавиатура кнопок".
+#Домашнее задание по теме "Инлайн клавиатуры".
 
 import aiogram
 from aiogram import Bot, Dispatcher, types, executor
@@ -6,19 +6,21 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
 import Config
 
 bot = Bot(token=Config.BOT_TOKEN)
 dp  = Dispatcher(bot, storage= MemoryStorage())
+formula = '10 х вес (кг) + 6,25 x рост (см) – 5 х возраст (г) + 5'
 
 class UserState(StatesGroup):
     age = State()
     growth= State()
     weight = State()
 
-button_start = KeyboardButton( text='Рассчитать')
-button_inf = KeyboardButton( text='Информация')
+button_start = KeyboardButton(text='Рассчитать')
+button_inf = KeyboardButton(text='Информация')
 
 greet_kb = ReplyKeyboardMarkup(resize_keyboard=True).row(button_inf, button_start)
 
@@ -28,14 +30,28 @@ HELP = """
 Нажимайте на кнопку [Рассчитать] и начинайте процесс.
 """
 
+
+button_count = InlineKeyboardButton(text='Рассчитать норму калорий', callback_data='calories')
+button_formula = InlineKeyboardButton(text='Формулы расчёта', callback_data='formulas')
+
+kb_in = InlineKeyboardMarkup(resize_keyboard=True).row(button_count, button_formula)
+
 @dp.message_handler(commands=["start"])
-async def set_start(message):
+async def main_menu(message):
     await message.answer('Я - специальный бот для нахождения нормы суточного потребления калорий для человека.', reply_markup=greet_kb)
 
-@dp.message_handler(text='Рассчитать')
-async def set_age(message):
-#    print(f"Пользователь {message.from_user.id} начал ввод данных")
-    await message.answer('Введите свой возраст, пожалуйста! ')
+@dp.message_handler(text="Рассчитать")
+async def set_start(message):
+    await message.answer('Выберите опцию', reply_markup = kb_in)
+
+@dp.callback_query_handler(text = 'formulas')
+async def get_formulas(call):
+    await call.message.answer(f'{formula}')
+    await call.answer()
+
+@dp.callback_query_handler(text='calories')
+async def set_age(call):
+    await call.message.answer('Введите свой возраст, пожалуйста! ')
     await UserState.age.set()
 
 @dp.message_handler(state=UserState.age)
@@ -54,7 +70,6 @@ async def set_weight(message, state):
 async def send_calories(message, state):
     await state.update_data(weight=message.text)
     data = await state.get_data()
-#    print(f'Возраст - {data["age"]}, Рост - {data["growth"]}, Вес - {data["weight"]}')
     if not data["age"].isdigit() or not data["weight"].isdigit() or not data["growth"].isdigit():
         await message.answer(f'Введенные данные некорректны! Должны быть только числа. '
                              f'Выберете /start для повтора или нажмите [Рассчитать]')

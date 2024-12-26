@@ -7,8 +7,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.dispatcher import FSMContext
 import asyncio
 import Config
+from Admin import *
+from db import *
 import texts
-from Config import * #BOT_TOKEN, price_M, price_L, price_XL
 from keyboards import *
 from texts import *
 import logging

@@ -1,0 +1,6 @@
+
+API = "7303777979:AAGaYBXrb5QyvOOcW4BA6Kx9u_ITaS71sio"
+
+priceM = 1500
+priceL = 2000
+priceXL = 3000
